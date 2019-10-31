@@ -1,38 +1,38 @@
-//�x���z����Œ�K�v�ȍd�݂̖������v�Z����v���O����
+//支払額から最低必要な硬貨の枚数を計算するプログラム
 #include <stdio.h>
 #define ACCOUNTING_MAX 1000
 const unsigned int units[] ={500, 100, 50, 10, 5, 1};
 #define unit_count (sizeof(units)/sizeof(units[0]))
 #define Unit_Count_MAX 10
-//�󋵂ɉ����ĕω�������萔�͂Ȃ�ׂ���Ɏ����Ă���
-//define��p���邱�ƂŃ}�W�b�N�i���o�[(�l�̈Ӗ����s���ĂȐ��l)���Ȃ���
+//状況に応じて変化させる定数はなるべく上に持っていく
+//defineを用いることでマジックナンバー(値の意味が不明瞭な数値)をなくす
 int main(void)
-{	//�C���f���e�[�V�������s�����ƂŎ��F�����i�i�Ɍ��シ��
+{	//インデンテーションを行うことで視認性が格段に向上する
 	unsigned int i, accounting, buffer;
-		//�ϐ����͈Ӗ��������̂ɂ���Ɨǂ�
-		//�܂��{���v���O�������ňӖ��̕ς��ϐ��͐錾���Ȃ��ق����ǂ�
-		//C�ɂ����ĕϐ��錾�͈�ԍŏ��ł����ł��Ȃ�
+		//変数名は意味を持つものにすると良い
+		//また本来プログラム中で意味の変わる変数は宣言しないほうが良い
+		//Cにおいて変数宣言は一番最初でしかできない
 	unsigned int count[Unit_Count_MAX];
-		//C�ł͐錾����z��̑傫���̓R���p�C�����Ɍ��肳��Ă���K�v������
-		//(���I�ɕω���������@�����邪�A�|�C���^�̊T�O��p���邤����~~�ʓ|~~���G�Ȃ��ߍ���͎g�p���Ȃ�)
-	puts("�x���z����Œ�K�v�ȍd�݂̖������v�Z���܂�");
-	printf("�x���z����͂��Ă�������(1 ... %d)\n", ACCOUNTING_MAX-1);
-	do	//goto��do-while�ő�p�ł���
+		//Cでは宣言する配列の大きさはコンパイル時に決定されている必要がある
+		//(動的に変化させる方法もあるが、ポインタの概念を用いるうえに~~面倒~~複雑なため今回は使用しない)
+	puts("支払額から最低必要な硬貨の枚数を計算します");
+	printf("支払額を入力してください(1 ... %d)\n", ACCOUNTING_MAX-1);
+	do	//gotoはdo-whileで代用できる
 	{
 		printf("> ");
 		scanf("%u", &accounting);
 		if(accounting<=0 || accounting>=ACCOUNTING_MAX)
-			printf("%u�͖����Ȓl�ł��B1 ... %d�͈͓̔��œ��͂��Ă�������\n", accounting, ACCOUNTING_MAX-1);
+			printf("%uは無効な値です。1 ... %dの範囲内で入力してください\n", accounting, ACCOUNTING_MAX-1);
 	} while(accounting<=0 || accounting>=ACCOUNTING_MAX);
 
-	printf("�x�����z: %u", accounting);
+	printf("支払金額: %u", accounting);
 
 	for (i= 0; i<unit_count; ++i)
 	{
 		if(units[i]==0)
 		{
-			//���X�ɗ�O�����������Ă����_�ɂ��Ắ�
-			printf("�g�p����d�݂ɖ�肪������܂����B\n�g�p����d�݂̍Ċm�F���s���Ă��������B");
+			//所々に例外処理が入っていた点については◎
+			printf("使用する硬貨に問題が見つかりました。\n使用する硬貨の再確認を行ってください。");
 			return -1;
 		}
 		else
@@ -43,24 +43,24 @@ int main(void)
 		}
 		if(accounting==0)
 			break;
-		//����؂ꂽ�i�K�ŏ�����؂�グ��
+		//割り切れた段階で処理を切り上げる
 	}
 	if(accounting==0)
-		//����؂ꂽ���ǂ����̔���(����؂ꂽ�ꍇ��0�ɂȂ�)
+		//割り切れたかどうかの判定(割り切れた場合は0になる)
 	{
-		puts("�x�����ɕK�v�ȍd�݂̖���");
+		puts("支払いに必要な硬貨の枚数");
 		buffer= 0;
 		for(i=0; i<unit_count; i++)
 		{
-			printf("%u�~��: %u��\n", units[i], count[i]);
+			printf("%u円玉: %u枚\n", units[i], count[i]);
 			buffer+= count[i];
 		}
-		printf("���v: %u��", buffer);
+		printf("合計: %u枚", buffer);
 		return 0;
 	}
 	else
 	{
-		puts("�x�����z�ɑ΂��A�w�肳�ꂽ���ʂ̎�ނł͊���؂�܂���ł����B\n�g�p����d�݂̍Ċm�F���s���Ă��������B");
+		puts("支払金額に対し、指定された効果の種類では割り切れませんでした。\n使用する硬貨の再確認を行ってください。");
 		return -1;
 	}
 }
