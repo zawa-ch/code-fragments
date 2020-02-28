@@ -10,7 +10,8 @@ public:
 class SubClass : virtual public AbstractClass
 {
 public:
-    void foo() const { std::cout << "do something" << std::endl; } // AbstractClass::fooの実装
+    int a;
+    void foo() const { std::cout << "do something " << a << std::endl; } // AbstractClass::fooの実装
 };
 
 class AbstractHolder
@@ -22,13 +23,13 @@ public:
 class SubHolder1
 {
 public:
-    AbstractClass&& get() const { return SubClass(); } // 転送参照ではないため、オブジェクトの生存期間はこの関数内のみ
+    SubClass&& get() const { return SubClass(); } // オブジェクトの生存期間はこの関数内のみ
 };
 
 class SubHolder2
 {
 public:
-    AbstractClass&& get() const { return std::forward<AbstractClass>(SubClass()); } // 転送参照、オブジェクトの生存期間が延長される
+    SubClass&& get() const { return std::forward<SubClass>(SubClass()); } // 転送されるように思えたが、実際には返り値が受け取られる前にオブジェクトは破棄される(記憶域は破棄されない、おそらく処理系定義)?
 };
 
 int main()
@@ -37,12 +38,14 @@ int main()
     rref1.foo();
 
     SubHolder1 holder1 = SubHolder1();
-    AbstractClass&& rref2 = holder1.get(); // エラー、破棄されたオブジェクトへの参照
-    rref2.foo();
+    SubClass&& rref2 = holder1.get(); // 破棄されたオブジェクトへの参照
+    //rref2.a = 2;
+    //rref2.foo();
 
     SubHolder2 holder2 = SubHolder2();
-    AbstractClass&& rref3 = holder2.get(); // OK、std::forwardを使用して転送されるため、生存期間が延長される
-    rref3.foo();
+    SubClass&& rref3 = holder2.get();
+    rref3.a = 3;
+    rref3.foo(); // 3ではなく何らかの値が表示される
 
     return 0;
 }
