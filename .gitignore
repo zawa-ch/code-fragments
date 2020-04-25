@@ -1,6 +1,8 @@
 # 管理用ディレクトリ
 .vscode/
+*.lock
 
 # 出力されたバイナリ
 .o
 .out
+**/target/
