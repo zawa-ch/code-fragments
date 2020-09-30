@@ -1,0 +1,280 @@
+#! /bin/bash
+
+# tar help
+#
+# ローカルファイル名選択:
+#		--add-file=FILE					指定された FILE をアーカイブに追加(ダッシュ ' で始まるファイル名の場合に便利)
+#	-C, --directory=DIR					ディレクトリ DIR へ移動
+#		--exclude=PATTERN				PATTERN に一致するファイルを除外
+#		--exclude-backups				バックアップを除外してファイルをロック
+#		--exclude-caches				タグファイル自身を除く CACHEDIR.TAG を含むディレクトリの内容を除外
+#		--exclude-caches-all			CACHEDIR.TAG を含むディレクトリを除外
+#		--exclude-caches-under			CACHEDIR.TAG を含むディレクトリ以下の全てを除外
+#		--exclude-ignore=FILE			各ディレクトリの除外パターンをFILE(存在する場合) から読み取り
+#		--exclude-ignore-recursive=FILE	各ディレクトリおよびそのサブディレクトリの除外パターンをFILE(存在する場合) から読み取り
+#		--exclude-tag=FILE				FILE 自身を除く FILE を含むディレクトリの内容を除外
+#		--exclude-tag-all=FILE			FILE を含むディレクトリを除外
+#		--exclude-tag-under=FILE		FILE を含むディレクトリ以下の全てを除外
+#		--exclude-vcs					バージョン管理システムのディレクトリを除外
+#		--exclude-vcs-ignores			除外パターンをVCS無視ファイルから読み取り
+#		--no-null						前の --null オプションの効果を無効化
+#		--no-recursion					ディレクトリを自動的に下っていかない
+#		--no-unquote					入力ファイルまたはメンバー名を引用終了しない
+#		--no-verbatim-files-from		-T がファイル名をダッシュで始まるオプションとして処理(標準)
+#		--null							-T が null で終わる名前を読み込み; --verbatim-files-from を暗示
+#		--recursion						ディレクトリを順繰りに下っていく(default)
+#	-T, --files-from=FILE				抽出または作成する名前をファイル FILE から取得
+#		--unquote						入力ファイルまたはメンバー名を引用終了する(標準)
+#		--verbatim-files-from			-T reads file names verbatim (no escape or option handling)
+#	-X, --exclude-from=FILE				FILE に列挙されたパターンを除外
+#
+# ファイル名一致オプション(除外/包含の両パターンに作用):
+#
+#		--anchored					ファイル名の先頭とパターンが一致
+#		--ignore-case				大文字小文字を無視
+#		--no-anchored				任意の '/' 以降にパターンが一致 (標準で除外)
+#		--no-ignore-case			大文字小文字を考慮して一致 (標準)
+#		--no-wildcards				逐語的文字列一致
+#		--no-wildcards-match-slash	ワイルドカードが '/' に一致しない
+#		--wildcards					ワイルドカードを使用 (標準で除外)
+#		--wildcards-match-slash		ワイルドカードが '/' に一致 (標準で除外)
+#
+# 操作オプション:
+#
+#	-A, --catenate, --concatenate	アーカイブに tar ファイルを追加
+#	-c, --create					新しいアーカイブを作成
+#	-d, --diff, --compare			アーカイブとファイルシステムとの違いを見付ける
+#		--delete					アーカイブから削除(磁気テープ上ではダメ!)
+#	-r, --append					アーカイブの末尾にファイルを追加
+#	-t, --list						アーカイブの内容を一覧表示
+#		--test-label				アーカイブのボリュームラベルをテストして終了
+#	-u, --update					アーカイブ内にあるファイルより新しいファイルのみを追加
+#	-x, --extract, --get			アーカイブからファイルを抽出
+#
+# 操作オプションに対する付加機能:
+#
+#		--check-device					インクリメンタルアーカイブ作成時にデバイス番号をチェックする(標準)
+#	-g, --listed-incremental=FILE		新しい GNU 形式のインクリメンタルバックアップを処理
+#	-G, --incremental					古い GNU 形式のインクリメンタルバックアップを処理
+#		--hole-detection=TYPE			穴を検知する技術
+#		--ignore-failed-read			読み込めないファイルにおいて非ゼロで終了しません
+#		--level=NUMBER					作られた listed-incremental アーカイブに対するダンプレベル
+#	-n, --seek							アーカイブは検索可能
+#		--no-check-device				インクリメンタルアーカイブ作成時にデバイス番号をチェックしない
+#		--no-seek						アーカイブは検索可能ではありません
+#		--occurrence[=NUMBER]			アーカイブ中の各ファイルのNUMBER番目の存在のみ処理.
+#										このオプションはサブコマンド --delete, --diff, --extract または --list のうちの1つと組み合わせて且つファイル一覧がコマンドラインか -T オプション経由のどちらかで指定された場合のみ有効.
+#										NUMBER は標準で 1.
+#		--sparse-version=MAJOR[.MINOR]	まばら (sparse) 形式のバージョンを設定 (--sparse の意味を含む)
+#	-S, --sparse						まばらに存在するファイルを効果的に処理
+#
+# 制御を上書き:
+#
+#	-k, --keep-old-files			取り出す際に既存のファイルを置き換えず, エラーとして扱う
+#		--keep-directory-symlink	取り出す際にディレクトリへの既存シンボリックリンクを維持
+#		--keep-newer-files			アーカイブコピーより新しい既存ファイルを置き換えない
+#		--no-overwrite-dir			既存ディレクトリのメタデータを保存
+#		--one-top-level[=DIR]		loose fileを取り出せないようにするためにサブディレクトリを作成
+#		--overwrite					取り出す際に既存ファイルを上書き
+#		--overwrite-dir				取り出す際に既存ディレクトリのメタデータを上書き(標準)
+#		--recursive-unlink			ディレクトリを取り出す前に階層を空に
+#		--remove-files				ファイルをアーカイブに加えた後で削除
+#		--skip-old-files			取り出す際に既存のファイルを置き換えず, そのままスキップする
+#	-U, --unlink-first				各々のファイルを取り出して上書きする前に削除
+#	-W, --verify					アーカイブを書き出した後に検証
+#
+# 出力ストリームを選択
+#
+#	  --ignore-command-error 子プロセスの終了コードを無視
+#	  --no-ignore-command-error
+#							 子プロセスの非ゼロ終了コードをエラーとして処理
+#  -O, --to-stdout
+#							 ファイルを取り出して標準出力に出力
+#	  --to-command=COMMAND
+#							 ファイルを取り出して別のプログラムに出力
+#
+# ファイル属性の処理
+#
+#	  --atime-preserve[=METHOD]   最終アクセス時刻を,
+#							 読み込み後に復元する (METHOD='replace';
+#							 標準) か最初に設定しない
+#							 (METHOD='system')
+#							 かのどちらかの方法でダンプファイル上で維持
+#	  --clamp-mtime          ファイルが --mtime
+#							 での指定より新しい場合に時刻設定するのみ
+#	  --delay-directory-restore
+#							 抽出が終了するまで抽出されたディレクトリの最終更新時刻と属性の設定を遅らせる
+#	  --group=NAME           加えたファイルのグループを NAME
+#							 に変更
+#	  --group-map=FILE       ファイル所有者 GID
+#							 と名前をマップするのに FILE を使用
+#	  --mode=CHANGES         加えたファイルの (シンボリック)
+#							 モードを CHANGES に変更
+#	  --mtime=DATE-OR-FILE   DATE-OR-FILE から追加ファイルの mtime
+#							 を設定
+#  -m, --touch                ファイルの更新時刻を取り出さない
+#	  --no-delay-directory-restore
+#							 --delay-directory-restore
+#							 オプションの効果を取り消し
+#	  --no-same-owner
+#							 あなた自身のファイルとして取り出す
+#							 (一般ユーザではデフォルト)
+#	  --no-same-permissions
+#							 アーカイブから属性を抽出する際にユーザの
+#							 umask を適用 (一般ユーザでは標準)
+#	  --numeric-owner
+#							 ユーザ名/グループ名として常に数字を使う
+#	  --owner=NAME           加えたファイルの所有者を NAME
+#							 に変更
+#	  --owner-map=FILE       ファイル所有者 UID
+#							 と名前をマップするのに FILE を使用
+#  -p, --preserve-permissions, --same-permissions
+#							 ファイル属性についての情報を抽出
+#							 (superuser では標準)
+#	  --same-owner
+#							 アーカイブ内と同じ所有者のままでファイルを取り出してみる
+#							 (スーパーユーザではデフォルト)
+#  -s, --preserve-order, --same-order
+#							 メンバー引数はアーカイブ内のファイルと同じ順番で並んでいます
+#	  --sort=順番          ディレクトリ並び替え順: なし
+#							 (標準), 名前またはiノード
+#
+# 拡張ファイル属性の処理
+#
+#	  --acls                 POSIX ACL 対応を有効に
+#	  --no-acls              POSIX ACL 対応を無効に
+#	  --no-selinux           SELinux コンテクスト対応を無効に
+#	  --no-xattrs            拡張属性対応を無効に
+#	  --selinux              SELinux コンテクスト対応を有効に
+#	  --xattrs               拡張属性対応を有効に
+#	  --xattrs-exclude=MASK  xattr
+#							 キーに対する除外パターンを指定
+#	  --xattrs-include=MASK  xattr
+#							 キーに対する包含パターンを指定
+#
+# デバイスの選択と切替:
+#
+#  -f, --file=ARCHIVE         アーカイブファイルまたはデバイス
+#							 ARCHIVE を使用
+#	  --force-local
+#							 アーカイブファイルはコロンを含んでいてもローカル
+#  -F, --info-script=NAME, --new-volume-script=NAME
+#							 各々のテープの最後でスクリプトを実行
+#							 (-M 必須)
+#  -L, --tape-length=NUMBER   NUMBER x 1024
+#							 バイトを書き出した後でテープを変更
+#  -M, --multi-volume
+#							 マルチボリュームのアーカイブを作成/一覧/抽出
+#	  --rmt-command=COMMAND  指定された rmt COMMAND を rmt
+#							 の代わりに使用
+#	  --rsh-command=COMMAND  rsh の代わりに COMMAND を使用
+#	  --volno-file=FILE      FILE 中のボリューム番号を使用/更新
+#
+# デバイスブロッキング:
+#
+#  -b, --blocking-factor=BLOCKS   レコードあたり BLOCKS x 512 バイト
+#  -B, --read-full-records    読み出したように再ブロック (4.2BSD
+#							 パイプ用)
+#  -i, --ignore-zeros         アーカイブ中のゼロブロック (つまり
+#							 EOF) を無視
+#	  --record-size=NUMBER   レコードあたり NUMBER バイト. 512
+#							 の倍数
+#
+# アーカイブ形式の選択
+#
+#  -H, --format=FORMAT        指定された形式のアーカイブを作成
+#
+# FORMAT は次のうちの 1つ:
+#
+#	gnu                      gnu       GNU tar 1.13.x 形式
+#	oldgnu                   GNU tar 1.12 以前の形式
+#	pax                      POSIX 1003.1-2001 (pax) 形式
+#	posix                    pax と同じ
+#	ustar                    ustar     POSIX 1003.1-1988 (ustar) 形式
+#	v7                       v7        古い V7 tar 形式
+#
+#	  --old-archive, --portability
+#							 --format=v7 と同じ
+#	  --pax-option=keyword[[:]=value][,keyword[[:]=value]]...
+#							 pax キーワードを制御
+#	  --posix                --format=posix と同じ
+#  -V, --label=TEXT           ボリューム名 TEXT
+#							 のアーカイブを作成. 一覧/抽出時に
+#							 TEXT
+#							 をボリューム名に対する抽出パターンに使用
+#
+# 圧縮オプション:
+#
+#	-a, --auto-compress				圧縮プログラムを決めるのにアーカイブ接尾辞を使用する
+#	-I, --use-compress-program=PROG	PROG 経由でフィルタ (-d を受け付ける必要あり)
+#	-j, --bzip2						bzip2 経由でアーカイブをフィルタ
+#	-J, --xz						xz 経由でアーカイブをフィルタ
+#		--lzip						lzip 経由でアーカイブをフィルタ
+#		--lzma						xz 経由でアーカイブをフィルタ
+#		--lzop						lzop 経由でアーカイブをフィルタ
+#		--no-auto-compress			圧縮プログラムを決めるのにアーカイブ接尾辞を使用しない
+#	-z, --gzip, --gunzip, --ungzip	gzip 経由でアーカイブをフィルタ
+#		--zstd						zstd 経由でアーカイブをフィルタ
+#	-Z, --compress, --uncompress	compress 経由でアーカイブをフィルタ
+#
+# ローカルファイル選択:
+#
+#		--backup[=CONTROL]								削除前にバージョン管理を CONTROL にしてバックアップ
+#	-h, --dereference									シンボリックリンクをたどる; それらが指すファイルをアーカイブしてダンプ
+#		--hard-dereference								ハードリンクをたどる; それらが指すファイルをアーカイブしてダンプ
+#	-K, --starting-file=MEMBER-NAME						アーカイブの読み取り時にメンバー MEMBER-NAME で開始
+#		--newer-mtime=DATE								データが変更された時だけ日付および時刻を比較
+#	-N, --newer=DATE-OR-FILE, --after-date=DATE-OR-FILE	DATE-OR-FILE よる新しいファイルのみを格納
+#		--one-file-system								アーカイブ作成時にローカルファイルシステムに限定
+#	-P, --absolute-names								ファイル名から先頭の '/' を取り除かない
+#		--suffix=STRING									削除前にバックアップ, 通常の接尾辞(環境変数 SIMPLE_BACKUP_SUFFIX  が未設定なら '~') を上書き
+#
+# ファイル名変換:
+#
+#		--strip-components=NUMBER					抽出時にファイル名から先頭の NUMBER 個のコンポネントを除去
+#		--transform=EXPRESSION, --xform=EXPRESSION	ファイル名の変換に sed の置換 EXPRESSION を使用
+#
+# 情報:
+#
+#		--checkpoint[=NUMBER]  NUMBER (標準 10) 番目の記録ごとに進捗メッセージを表示
+#		--checkpoint-action=ACTION						各検問で ACTION を実行
+#		--full-time										ファイルの時刻情報を完全形式で表示
+#		--index-file=FILE								冗長出力を FILE に送信
+#	-l, --check-links									全てのリンクがダンプされない場合メッセージを表示
+#		--no-quote-chars=STRING							STRING からの文字引用を無効に
+#		--quote-chars=STRING							更に STRING から文字を引用
+#		--quoting-style=STYLE							名前引用形式を設定. 有効な STYLE 値は下記参照.
+#	-R, --block-number									アーカイブ内のブロック数を各々メッセージ付きで表示
+#		--show-defaults									tar の既定値を表示
+#		--show-omitted-dirs								一覧や抽出時に, 検索基準に一致しないディレクトリを各々一覧表示
+#		--show-snapshot-field-ranges					スナップショットファイルの領域の正当な範囲を表示
+#		--show-transformed-names, --show-stored-names	変換後にファイル名またはアーカイブ名を表示
+#		--totals[=SIGNAL]								アーカイブの処理後に総バイト数を表示.
+#														引数があれば - この SIGNAL が発せられる時に総バイト数を表示.
+#														許可された SIGNAL は: SIGHUP, SIGQUIT, SIGINT, SIGUSR1 および SIGUSR2.
+#														SIG 接頭辞がない名前でも可
+#		--utc											ファイルの更新時刻を UTC で表示
+#	-v, --verbose										処理されているファイルの一覧を冗長に表示
+#		--warning=KEYWORD								警戒管制
+#	-w, --interactive, --confirmation					全ての動作を確認
+#
+# 互換オプション:
+#
+#	-o	作成時は --old-archive と同じ. 抽出時は --no-same-owner と同じ
+#
+# その他オプション:
+#
+#	-?, --help		このヘルプ一覧を表示
+#		--restrict	潜在的に害になるオプションの使用を無効に
+#		--usage		短い使用法メッセージを表示
+#		--version	プログラムバージョンを表示
+#
+
+COMPFILE=$1
+
+if [ "$COMPFILE" == "" ]; then
+	echo "ファイル名を指定してください。"
+	exit 255
+fi
+
+tar -czkf "$COMPFILE.tar.gz" --owner=root --group=root "$COMPFILE"
