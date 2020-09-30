@@ -1,0 +1,6 @@
+[workspace] 
+
+members = [
+    "primegen",
+    "primegen_bin"
+]
